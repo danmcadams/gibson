@@ -42,18 +42,19 @@ function build_tree(array $files): array {
 }
 
 // --- Recursively render sidebar tree ---
-function render_tree(array $tree, string $activeFile): void {
+function render_tree(array $tree, string $activeFile, string $prefix = ''): void {
     // Dirs first, then files
     $dirs  = array_filter($tree, fn($n) => $n['type'] === 'dir');
     $files = array_filter($tree, fn($n) => $n['type'] === 'file');
 
     foreach ($dirs as $node) {
+        $path = $prefix . '/' . $node['name'];
         $open = dir_contains_active($node['children'], $activeFile) ? ' open' : '';
         echo '<li class="dir">';
-        echo '<details' . $open . '>';
+        echo '<details' . $open . ' data-path="' . htmlspecialchars($path, ENT_QUOTES) . '">';
         echo '<summary>' . htmlspecialchars($node['name']) . '</summary>';
         echo '<ul>';
-        render_tree($node['children'], $activeFile);
+        render_tree($node['children'], $activeFile, $path);
         echo '</ul>';
         echo '</details>';
         echo '</li>';
@@ -139,5 +140,26 @@ if ($requestedFile !== null) {
             </div>
         <?php endif; ?>
     </main>
+    <script>
+    (function () {
+        const KEY = 'sidebar-open';
+        const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+        document.querySelectorAll('details[data-path]').forEach(function (el) {
+            // Restore any previously-opened dirs (server already opens the active one)
+            if (saved.includes(el.dataset.path)) el.open = true;
+
+            // Persist state when user manually toggles a dir
+            el.addEventListener('toggle', function () {
+                const current = JSON.parse(localStorage.getItem(KEY) || '[]');
+                const path = el.dataset.path;
+                const idx = current.indexOf(path);
+                if (el.open && idx === -1) current.push(path);
+                if (!el.open && idx !== -1) current.splice(idx, 1);
+                localStorage.setItem(KEY, JSON.stringify(current));
+            });
+        });
+    })();
+    </script>
 </body>
 </html>
