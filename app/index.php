@@ -109,6 +109,7 @@ if ($requestedFile !== null) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?></title>
     <link rel="stylesheet" href="/style.css">
+    <script>document.documentElement.classList.add('notransition');</script>
 </head>
 <body>
     <aside id="sidebar">
@@ -144,9 +145,6 @@ if ($requestedFile !== null) {
     (function () {
         const KEY = 'sidebar-open';
         const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
-
-        // Suppress CSS transitions while restoring open state so dirs don't animate on load
-        document.documentElement.classList.add('notransition');
 
         document.querySelectorAll('details[data-path]').forEach(function (el) {
             if (saved.includes(el.dataset.path)) el.open = true;
