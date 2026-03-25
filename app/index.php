@@ -227,7 +227,12 @@ if ($requestedFile !== null) {
                     <?= $content ?>
                 </article>
             <?php else: ?>
-                <div class="home">
+                <div class="home" id="home">
+                    <div id="hacker-home" class="hacker-home" style="display:none">
+                        <div class="hacker-title">HACK<br>THE<br>PLANET</div>
+                        <pre id="manifesto-text" class="manifesto-text"></pre>
+                    </div>
+                    <div id="default-home">
                     <div class="home-logo">Dossier</div>
                     <p class="home-tagline">your documents, organized and readable.</p>
                     <div class="home-hints">
@@ -248,6 +253,7 @@ if ($requestedFile !== null) {
                             <span>reference images as <code>/docs/path/to/image.png</code></span>
                         </div>
                     </div>
+                    </div><!-- /default-home -->
                 </div>
             <?php endif; ?>
         </main>
@@ -292,7 +298,31 @@ if ($requestedFile !== null) {
             document.documentElement.setAttribute('data-theme', name);
             localStorage.setItem('theme', name);
             updateActiveCard();
+            updateHomeView(name);
         }
+
+        var manifestoFetched = false;
+        function updateHomeView(theme) {
+            var hackerEl  = document.getElementById('hacker-home');
+            var defaultEl = document.getElementById('default-home');
+            if (!hackerEl) return;
+            if (theme === 'hacker') {
+                defaultEl.style.display = 'none';
+                hackerEl.style.display  = '';
+                if (!manifestoFetched) {
+                    manifestoFetched = true;
+                    fetch('/manifesto.txt')
+                        .then(function(r) { return r.text(); })
+                        .then(function(t) { document.getElementById('manifesto-text').textContent = t; })
+                        .catch(function() { document.getElementById('manifesto-text').textContent = '// connection refused'; });
+                }
+            } else {
+                hackerEl.style.display  = 'none';
+                defaultEl.style.display = '';
+            }
+        }
+
+        updateHomeView(localStorage.getItem('theme') || 'light');
 
         function updateActiveCard() {
             var current = localStorage.getItem('theme') || 'light';
