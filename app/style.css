@@ -810,6 +810,13 @@ article hr {
     font-style: italic;
 }
 
+.pdf-viewer {
+    width: 100%;
+    height: calc(100vh - 120px);
+    border: none;
+    border-radius: 6px;
+}
+
 pre.plaintext {
     font-family: ui-monospace, SFMono-Regular, monospace;
     font-size: 0.875rem;

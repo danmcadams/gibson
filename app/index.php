@@ -11,7 +11,7 @@ function get_all_files(): array {
         new RecursiveDirectoryIterator(DOCS_DIR, RecursiveDirectoryIterator::SKIP_DOTS)
     );
     foreach ($it as $f) {
-        if (in_array($f->getExtension(), ['md', 'txt'])) {
+        if (in_array($f->getExtension(), ['md', 'txt', 'pdf'])) {
             $files[] = str_replace('\\', '/', substr($f->getPathname(), strlen(DOCS_DIR) + 1));
         }
     }
@@ -95,9 +95,12 @@ if ($requestedFile !== null) {
     $ext = $fullPath ? pathinfo($fullPath, PATHINFO_EXTENSION) : '';
     if ($fullPath === false
         || strpos($fullPath, DOCS_DIR) !== 0
-        || !in_array($ext, ['md', 'txt'])
+        || !in_array($ext, ['md', 'txt', 'pdf'])
         || !is_file($fullPath)) {
         $error = true;
+    } elseif ($ext === 'pdf') {
+        $content = '<embed src="/docs/' . htmlspecialchars($requestedFile) . '" type="application/pdf" class="pdf-viewer">';
+        $title   = htmlspecialchars(basename($fullPath, '.pdf'));
     } elseif ($ext === 'txt') {
         $content = '<pre class="plaintext">' . htmlspecialchars(file_get_contents($fullPath)) . '</pre>';
         $title   = htmlspecialchars(basename($fullPath, '.txt'));

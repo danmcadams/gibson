@@ -29,6 +29,7 @@ if (preg_match('#^/docs/(.+)$#', $uri, $m)) {
         'webp' => 'image/webp',
         'svg'  => 'image/svg+xml',
         'ico'  => 'image/x-icon',
+        'pdf'  => 'application/pdf',
     ];
 
     if (!isset($mimes[$ext])) {
