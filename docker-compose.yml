@@ -7,5 +7,5 @@ services:
       - ./app:/var/www/app
       - ./docs:/var/www/docs
     working_dir: /var/www/app
-    command: php -S 0.0.0.0:8181 -t /var/www/app
+    command: php -S 0.0.0.0:8181 -t /var/www/app /var/www/app/router.php
     restart: unless-stopped

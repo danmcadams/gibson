@@ -11,7 +11,7 @@ function get_all_files(): array {
         new RecursiveDirectoryIterator(DOCS_DIR, RecursiveDirectoryIterator::SKIP_DOTS)
     );
     foreach ($it as $f) {
-        if ($f->getExtension() === 'md') {
+        if (in_array($f->getExtension(), ['md', 'txt'])) {
             $files[] = str_replace('\\', '/', substr($f->getPathname(), strlen(DOCS_DIR) + 1));
         }
     }
@@ -62,7 +62,7 @@ function render_tree(array $tree, string $activeFile, string $prefix = ''): void
 
     foreach ($files as $node) {
         $active = ($node['path'] === $activeFile) ? ' class="active"' : '';
-        $label  = htmlspecialchars(basename($node['name'], '.md'));
+        $label  = htmlspecialchars(preg_replace('/\.(md|txt)$/', '', $node['name']));
         $href   = '/?file=' . urlencode($node['path']);
         echo '<li' . $active . '><a href="' . $href . '">' . $label . '</a></li>';
     }
@@ -89,11 +89,15 @@ $error   = false;
 
 if ($requestedFile !== null) {
     $fullPath = realpath(DOCS_DIR . '/' . $requestedFile);
+    $ext = $fullPath ? pathinfo($fullPath, PATHINFO_EXTENSION) : '';
     if ($fullPath === false
         || strpos($fullPath, DOCS_DIR) !== 0
-        || pathinfo($fullPath, PATHINFO_EXTENSION) !== 'md'
+        || !in_array($ext, ['md', 'txt'])
         || !is_file($fullPath)) {
         $error = true;
+    } elseif ($ext === 'txt') {
+        $content = '<pre class="plaintext">' . htmlspecialchars(file_get_contents($fullPath)) . '</pre>';
+        $title   = htmlspecialchars(basename($fullPath, '.txt'));
     } else {
         $parsedown = new Parsedown();
         $parsedown->setSafeMode(false);
@@ -109,12 +113,23 @@ if ($requestedFile !== null) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?></title>
     <link rel="stylesheet" href="/style.css">
-    <script>document.documentElement.classList.add('notransition');</script>
+    <script>
+        document.documentElement.classList.add('notransition');
+        (function () {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            if (localStorage.getItem('sidebar-collapsed') === '1') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
 </head>
 <body>
     <aside id="sidebar">
         <div class="sidebar-header">
             <a href="/" class="sidebar-title">Planning</a>
+            <button id="sidebar-toggle" class="sidebar-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
         </div>
         <nav>
             <?php if (empty($allFiles)): ?>
@@ -125,6 +140,15 @@ if ($requestedFile !== null) {
                 </ul>
             <?php endif; ?>
         </nav>
+        <div class="sidebar-footer">
+            <div class="theme-switch-wrap">
+                <span class="theme-icon">☀</span>
+                <button id="theme-toggle" role="switch" class="theme-switch" aria-checked="false" aria-label="Toggle dark mode">
+                    <span class="switch-thumb"></span>
+                </button>
+                <span class="theme-icon">☾</span>
+            </div>
+        </div>
     </aside>
 
     <main id="content">
@@ -164,6 +188,40 @@ if ($requestedFile !== null) {
             requestAnimationFrame(function () {
                 document.documentElement.classList.remove('notransition');
             });
+        });
+    })();
+
+    (function () {
+        var btn = document.getElementById('theme-toggle');
+        function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+        function updateSwitch() { btn.setAttribute('aria-checked', isDark() ? 'true' : 'false'); }
+        updateSwitch();
+        btn.addEventListener('click', function () {
+            if (isDark()) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateSwitch();
+        });
+    })();
+
+    (function () {
+        var btn = document.getElementById('sidebar-toggle');
+        var html = document.documentElement;
+        function isCollapsed() { return html.classList.contains('sidebar-collapsed'); }
+        function updateBtn() {
+            btn.textContent = isCollapsed() ? '›' : '‹';
+            btn.title = isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar';
+            btn.setAttribute('aria-label', isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar');
+        }
+        updateBtn();
+        btn.addEventListener('click', function () {
+            html.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed() ? '1' : '0');
+            updateBtn();
         });
     })();
     </script>
