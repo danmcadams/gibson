@@ -119,9 +119,9 @@ if ($requestedFile !== null) {
     <script>
         document.documentElement.classList.add('notransition');
         (function () {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            var t = localStorage.getItem('theme');
+            if (!t) { t = 'light'; localStorage.setItem('theme', 'light'); }
+            document.documentElement.setAttribute('data-theme', t);
             if (localStorage.getItem('sidebar-collapsed') === '1') {
                 document.documentElement.classList.add('sidebar-collapsed');
             }
@@ -145,13 +145,77 @@ if ($requestedFile !== null) {
         </nav>
     </aside>
 
-    <div class="theme-switch-wrap" id="theme-switch-fixed">
-        <span class="theme-icon">☀</span>
-        <button id="theme-toggle" role="switch" class="theme-switch" aria-checked="false" aria-label="Toggle dark mode">
-            <span class="switch-thumb"></span>
-        </button>
-        <span class="theme-icon">☾</span>
+    <button id="settings-btn" class="settings-btn" aria-label="Settings" title="Settings" aria-expanded="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <span class="settings-title">Theme</span>
+            <button id="settings-close" class="settings-close" aria-label="Close settings">✕</button>
+        </div>
+        <div class="theme-grid">
+            <button class="theme-card" data-theme="light" aria-label="Light theme">
+                <div class="theme-card-preview">
+                    <div class="tc-sidebar" style="background:#f3f0f7"></div>
+                    <div class="tc-content" style="background:#fff">
+                        <div class="tc-bar" style="background:#7c3aed"></div>
+                        <div class="tc-line" style="background:#222"></div>
+                        <div class="tc-line-accent" style="background:#7c3aed"></div>
+                    </div>
+                </div>
+                <span class="theme-card-label">Light</span>
+            </button>
+            <button class="theme-card" data-theme="dark" aria-label="Dark theme">
+                <div class="theme-card-preview">
+                    <div class="tc-sidebar" style="background:#1e1e2e"></div>
+                    <div class="tc-content" style="background:#1e1e2e">
+                        <div class="tc-bar" style="background:#cba6f7"></div>
+                        <div class="tc-line" style="background:#cdd6f4"></div>
+                        <div class="tc-line-accent" style="background:#cba6f7"></div>
+                    </div>
+                </div>
+                <span class="theme-card-label">Dark</span>
+            </button>
+            <button class="theme-card" data-theme="hacker" aria-label="Hacker theme">
+                <div class="theme-card-preview">
+                    <div class="tc-sidebar" style="background:#050f05"></div>
+                    <div class="tc-content" style="background:#0a0a0a">
+                        <div class="tc-bar" style="background:#39ff14"></div>
+                        <div class="tc-line" style="background:#00ff41"></div>
+                        <div class="tc-line-accent" style="background:#39ff14"></div>
+                    </div>
+                </div>
+                <span class="theme-card-label">Hacker</span>
+            </button>
+            <button class="theme-card" data-theme="warm" aria-label="Warm theme">
+                <div class="theme-card-preview">
+                    <div class="tc-sidebar" style="background:#2c1a0e"></div>
+                    <div class="tc-content" style="background:#fdf6e3">
+                        <div class="tc-bar" style="background:#c0622a"></div>
+                        <div class="tc-line" style="background:#3d2b1f"></div>
+                        <div class="tc-line-accent" style="background:#c0622a"></div>
+                    </div>
+                </div>
+                <span class="theme-card-label">Warm</span>
+            </button>
+            <button class="theme-card" data-theme="nord" aria-label="Nord theme">
+                <div class="theme-card-preview">
+                    <div class="tc-sidebar" style="background:#242933"></div>
+                    <div class="tc-content" style="background:#2e3440">
+                        <div class="tc-bar" style="background:#88c0d0"></div>
+                        <div class="tc-line" style="background:#eceff4"></div>
+                        <div class="tc-line-accent" style="background:#88c0d0"></div>
+                    </div>
+                </div>
+                <span class="theme-card-label">Nord</span>
+            </button>
+        </div>
     </div>
+
     <div id="main">
         <main id="content">
             <?php if ($error): ?>
@@ -219,19 +283,61 @@ if ($requestedFile !== null) {
     })();
 
     (function () {
-        var btn = document.getElementById('theme-toggle');
-        function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
-        function updateSwitch() { btn.setAttribute('aria-checked', isDark() ? 'true' : 'false'); }
-        updateSwitch();
-        btn.addEventListener('click', function () {
-            if (isDark()) {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateSwitch();
+        var THEMES = ['light', 'dark', 'hacker', 'warm', 'nord'];
+
+        function setTheme(name) {
+            if (!THEMES.includes(name)) return;
+            document.documentElement.setAttribute('data-theme', name);
+            localStorage.setItem('theme', name);
+            updateActiveCard();
+        }
+
+        function updateActiveCard() {
+            var current = localStorage.getItem('theme') || 'light';
+            document.querySelectorAll('.theme-card').forEach(function (card) {
+                card.classList.toggle('is-active', card.dataset.theme === current);
+            });
+        }
+
+        document.querySelectorAll('.theme-card').forEach(function (card) {
+            card.addEventListener('click', function () { setTheme(card.dataset.theme); });
+        });
+
+        updateActiveCard();
+    })();
+
+    (function () {
+        var btn    = document.getElementById('settings-btn');
+        var panel  = document.getElementById('settings-panel');
+        var close  = document.getElementById('settings-close');
+        var isOpen = false;
+
+        function openPanel() {
+            isOpen = true;
+            panel.getBoundingClientRect(); // force reflow
+            panel.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+        }
+
+        function closePanel() {
+            isOpen = false;
+            panel.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            isOpen ? closePanel() : openPanel();
+        });
+
+        close.addEventListener('click', closePanel);
+
+        document.addEventListener('click', function (e) {
+            if (isOpen && !panel.contains(e.target)) closePanel();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && isOpen) closePanel();
         });
     })();
 
