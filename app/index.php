@@ -1,22 +1,26 @@
 <?php
 require_once __DIR__ . '/Parsedown.php';
 
-define('DOCS_DIR', '/var/www/docs');
+const DOCS_DIR = '/var/www/docs';
 
 // --- Collect all .md files as relative paths ---
-function get_all_files(): array {
+function get_all_files(): array
+{
     $files = [];
     if (!is_dir(DOCS_DIR)) return $files;
     $it = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(DOCS_DIR, RecursiveDirectoryIterator::SKIP_DOTS)
+            new RecursiveDirectoryIterator(DOCS_DIR, RecursiveDirectoryIterator::SKIP_DOTS)
     );
     foreach ($it as $f) {
         if (in_array($f->getExtension(), ['md', 'txt', 'pdf'])) {
-            $rel   = str_replace('\\', '/', substr($f->getPathname(), strlen(DOCS_DIR) + 1));
+            $rel = str_replace('\\', '/', substr($f->getPathname(), strlen(DOCS_DIR) + 1));
             $parts = explode('/', $rel);
             $hidden = false;
             foreach ($parts as $part) {
-                if (str_starts_with($part, '_')) { $hidden = true; break; }
+                if (str_starts_with($part, '_')) {
+                    $hidden = true;
+                    break;
+                }
             }
             if (!$hidden) $files[] = $rel;
         }
@@ -27,11 +31,12 @@ function get_all_files(): array {
 
 // --- Build nested tree from flat paths ---
 // Returns array of nodes: ['type' => 'file'|'dir', 'name' => ..., 'path' => ..., 'children' => [...]]
-function build_tree(array $files): array {
+function build_tree(array $files): array
+{
     $root = [];
     foreach ($files as $relPath) {
         $parts = explode('/', $relPath);
-        $node  = &$root;
+        $node = &$root;
         foreach ($parts as $i => $part) {
             if ($i === count($parts) - 1) {
                 $node[$part] = ['type' => 'file', 'name' => $part, 'path' => $relPath];
@@ -48,14 +53,15 @@ function build_tree(array $files): array {
 }
 
 // --- Recursively render sidebar tree ---
-function render_tree(array $tree, string $activeFile, string $prefix = ''): void {
+function render_tree(array $tree, string $activeFile, string $prefix = ''): void
+{
     // Dirs first, then files
-    $dirs  = array_filter($tree, fn($n) => $n['type'] === 'dir');
+    $dirs = array_filter($tree, fn($n) => $n['type'] === 'dir');
     $files = array_filter($tree, fn($n) => $n['type'] === 'file');
 
     foreach ($dirs as $node) {
-        $path       = $prefix . '/' . $node['name'];
-        $open       = dir_contains_active($node['children'], $activeFile) ? ' open' : '';
+        $path = $prefix . '/' . $node['name'];
+        $open = dir_contains_active($node['children'], $activeFile) ? ' open' : '';
         $exportHref = '/export?folder=' . urlencode(ltrim($path, '/'));
         echo '<li class="dir">';
         echo '<details' . $open . ' data-path="' . htmlspecialchars($path, ENT_QUOTES) . '">';
@@ -78,17 +84,18 @@ function render_tree(array $tree, string $activeFile, string $prefix = ''): void
 
     foreach ($files as $node) {
         $isActive = $node['path'] === $activeFile;
-        $active   = $isActive ? ' class="active"' : '';
-        $label    = htmlspecialchars(preg_replace('/\.(md|txt)$/', '', $node['name']));
-        $fileext  = htmlspecialchars('.' . pathinfo($node['name'], PATHINFO_EXTENSION));
-        $href     = '/?file=' . urlencode($node['path']);
-        $dataext  = $isActive ? ' data-ext="' . $fileext . '"' : '';
+        $active = $isActive ? ' class="active"' : '';
+        $label = htmlspecialchars(preg_replace('/\.(md|txt)$/', '', $node['name']));
+        $fileext = htmlspecialchars('.' . pathinfo($node['name'], PATHINFO_EXTENSION));
+        $href = '/?file=' . urlencode($node['path']);
+        $dataext = $isActive ? ' data-ext="' . $fileext . '"' : '';
         echo '<li' . $active . $dataext . '><a href="' . $href . '">' . $label . '</a></li>';
     }
 }
 
 // Check if any descendant matches the active file
-function dir_contains_active(array $children, string $activeFile): bool {
+function dir_contains_active(array $children, string $activeFile): bool
+{
     foreach ($children as $node) {
         if ($node['type'] === 'file' && $node['path'] === $activeFile) return true;
         if ($node['type'] === 'dir' && dir_contains_active($node['children'], $activeFile)) return true;
@@ -97,34 +104,34 @@ function dir_contains_active(array $children, string $activeFile): bool {
 }
 
 // --- Main ---
-$allFiles      = get_all_files();
-$tree          = build_tree($allFiles);
+$allFiles = get_all_files();
+$tree = build_tree($allFiles);
 $requestedFile = $_GET['file'] ?? null;
 
 // Validate requested file
 $content = '';
-$title   = 'Palantir';
-$error   = false;
+$title = 'Palantir';
+$error = false;
 
 if ($requestedFile !== null) {
     $fullPath = realpath(DOCS_DIR . '/' . $requestedFile);
     $ext = $fullPath ? pathinfo($fullPath, PATHINFO_EXTENSION) : '';
     if ($fullPath === false
-        || strpos($fullPath, DOCS_DIR) !== 0
-        || !in_array($ext, ['md', 'txt', 'pdf'])
-        || !is_file($fullPath)) {
+            || strpos($fullPath, DOCS_DIR) !== 0
+            || !in_array($ext, ['md', 'txt', 'pdf'])
+            || !is_file($fullPath)) {
         $error = true;
     } elseif ($ext === 'pdf') {
         $content = '<embed src="/docs/' . htmlspecialchars($requestedFile) . '" type="application/pdf" class="pdf-viewer">';
-        $title   = htmlspecialchars(basename($fullPath, '.pdf'));
+        $title = htmlspecialchars(basename($fullPath, '.pdf'));
     } elseif ($ext === 'txt') {
         $content = '<pre class="plaintext">' . htmlspecialchars(file_get_contents($fullPath)) . '</pre>';
-        $title   = htmlspecialchars(basename($fullPath, '.txt'));
+        $title = htmlspecialchars(basename($fullPath, '.txt'));
     } else {
         $parsedown = new Parsedown();
         $parsedown->setSafeMode(false);
         $content = $parsedown->text(file_get_contents($fullPath));
-        $title   = htmlspecialchars(basename($fullPath, '.md'));
+        $title = htmlspecialchars(basename($fullPath, '.md'));
     }
 }
 ?>
@@ -140,7 +147,10 @@ if ($requestedFile !== null) {
         document.documentElement.classList.add('notransition');
         (function () {
             var t = localStorage.getItem('theme');
-            if (!t) { t = 'light'; localStorage.setItem('theme', 'light'); }
+            if (!t) {
+                t = 'light';
+                localStorage.setItem('theme', 'light');
+            }
             document.documentElement.setAttribute('data-theme', t);
             if (localStorage.getItem('sidebar-collapsed') === '1') {
                 document.documentElement.classList.add('sidebar-collapsed');
@@ -149,109 +159,111 @@ if ($requestedFile !== null) {
     </script>
 </head>
 <body>
-    <aside id="sidebar">
-        <div class="sidebar-header">
-            <a href="/" class="sidebar-title">Palantir</a>
-            <button id="sidebar-toggle" class="sidebar-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
-        </div>
-        <nav>
-            <?php if (empty($allFiles)): ?>
-                <p class="sidebar-empty">No files yet.</p>
-            <?php else: ?>
-                <ul class="tree">
-                    <?php render_tree($tree, $requestedFile ?? ''); ?>
-                </ul>
-            <?php endif; ?>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="settings-btn" class="settings-btn" aria-label="Settings" title="Settings" aria-expanded="false">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                </svg>
-            </button>
-        </div>
-    </aside>
-
-    <div id="settings-panel" class="settings-panel">
-        <div class="settings-header">
-            <span class="settings-title">Theme</span>
-            <button id="settings-close" class="settings-close" aria-label="Close settings">✕</button>
-        </div>
-        <div class="theme-grid">
-            <button class="theme-card" data-theme="light" aria-label="Light theme">
-                <div class="theme-card-preview">
-                    <div class="tc-sidebar" style="background:#f3f0f7"></div>
-                    <div class="tc-content" style="background:#fff">
-                        <div class="tc-bar" style="background:#7c3aed"></div>
-                        <div class="tc-line" style="background:#222"></div>
-                        <div class="tc-line-accent" style="background:#7c3aed"></div>
-                    </div>
-                </div>
-                <span class="theme-card-label">Light</span>
-            </button>
-            <button class="theme-card" data-theme="dark" aria-label="Dark theme">
-                <div class="theme-card-preview">
-                    <div class="tc-sidebar" style="background:#1e1e2e"></div>
-                    <div class="tc-content" style="background:#1e1e2e">
-                        <div class="tc-bar" style="background:#cba6f7"></div>
-                        <div class="tc-line" style="background:#cdd6f4"></div>
-                        <div class="tc-line-accent" style="background:#cba6f7"></div>
-                    </div>
-                </div>
-                <span class="theme-card-label">Dark</span>
-            </button>
-            <button class="theme-card" data-theme="hacker" aria-label="Hacker theme">
-                <div class="theme-card-preview">
-                    <div class="tc-sidebar" style="background:#050f05"></div>
-                    <div class="tc-content" style="background:#0a0a0a">
-                        <div class="tc-bar" style="background:#39ff14"></div>
-                        <div class="tc-line" style="background:#00ff41"></div>
-                        <div class="tc-line-accent" style="background:#39ff14"></div>
-                    </div>
-                </div>
-                <span class="theme-card-label">Hacker</span>
-            </button>
-            <button class="theme-card" data-theme="warm" aria-label="Warm theme">
-                <div class="theme-card-preview">
-                    <div class="tc-sidebar" style="background:#2c1a0e"></div>
-                    <div class="tc-content" style="background:#fdf6e3">
-                        <div class="tc-bar" style="background:#c0622a"></div>
-                        <div class="tc-line" style="background:#3d2b1f"></div>
-                        <div class="tc-line-accent" style="background:#c0622a"></div>
-                    </div>
-                </div>
-                <span class="theme-card-label">Warm</span>
-            </button>
-            <button class="theme-card" data-theme="nord" aria-label="Nord theme">
-                <div class="theme-card-preview">
-                    <div class="tc-sidebar" style="background:#242933"></div>
-                    <div class="tc-content" style="background:#2e3440">
-                        <div class="tc-bar" style="background:#88c0d0"></div>
-                        <div class="tc-line" style="background:#eceff4"></div>
-                        <div class="tc-line-accent" style="background:#88c0d0"></div>
-                    </div>
-                </div>
-                <span class="theme-card-label">Nord</span>
-            </button>
-        </div>
+<aside id="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-title">Palantir</a>
+        <button id="sidebar-toggle" class="sidebar-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">‹
+        </button>
     </div>
+    <nav>
+        <?php if (empty($allFiles)): ?>
+            <p class="sidebar-empty">No files yet.</p>
+        <?php else: ?>
+            <ul class="tree">
+                <?php render_tree($tree, $requestedFile ?? ''); ?>
+            </ul>
+        <?php endif; ?>
+    </nav>
+    <div class="sidebar-footer">
+        <button id="settings-btn" class="settings-btn" aria-label="Settings" title="Settings" aria-expanded="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </button>
+    </div>
+</aside>
 
-    <div id="main">
-        <main id="content">
-            <?php if ($error): ?>
-                <p class="empty">File not found.</p>
-            <?php elseif ($requestedFile !== null): ?>
-                <article data-ext="<?= htmlspecialchars(strtolower($ext)) ?>">
-                    <?= $content ?>
-                </article>
-            <?php else: ?>
-                <div class="home" id="home">
-                    <div id="hacker-home" class="hacker-home" style="display:none">
-                        <div class="hacker-title">HACK<br>THE<br>PLANET</div>
-                        <pre id="manifesto-text" class="manifesto-text"></pre>
-                    </div>
-                    <div id="default-home">
+<div id="settings-panel" class="settings-panel">
+    <div class="settings-header">
+        <span class="settings-title">Theme</span>
+        <button id="settings-close" class="settings-close" aria-label="Close settings">✕</button>
+    </div>
+    <div class="theme-grid">
+        <button class="theme-card" data-theme="light" aria-label="Light theme">
+            <div class="theme-card-preview">
+                <div class="tc-sidebar" style="background:#f3f0f7"></div>
+                <div class="tc-content" style="background:#fff">
+                    <div class="tc-bar" style="background:#7c3aed"></div>
+                    <div class="tc-line" style="background:#222"></div>
+                    <div class="tc-line-accent" style="background:#7c3aed"></div>
+                </div>
+            </div>
+            <span class="theme-card-label">Light</span>
+        </button>
+        <button class="theme-card" data-theme="dark" aria-label="Dark theme">
+            <div class="theme-card-preview">
+                <div class="tc-sidebar" style="background:#1e1e2e"></div>
+                <div class="tc-content" style="background:#1e1e2e">
+                    <div class="tc-bar" style="background:#cba6f7"></div>
+                    <div class="tc-line" style="background:#cdd6f4"></div>
+                    <div class="tc-line-accent" style="background:#cba6f7"></div>
+                </div>
+            </div>
+            <span class="theme-card-label">Dark</span>
+        </button>
+        <button class="theme-card" data-theme="hacker" aria-label="Hacker theme">
+            <div class="theme-card-preview">
+                <div class="tc-sidebar" style="background:#050f05"></div>
+                <div class="tc-content" style="background:#0a0a0a">
+                    <div class="tc-bar" style="background:#39ff14"></div>
+                    <div class="tc-line" style="background:#00ff41"></div>
+                    <div class="tc-line-accent" style="background:#39ff14"></div>
+                </div>
+            </div>
+            <span class="theme-card-label">Hacker</span>
+        </button>
+        <button class="theme-card" data-theme="warm" aria-label="Warm theme">
+            <div class="theme-card-preview">
+                <div class="tc-sidebar" style="background:#2c1a0e"></div>
+                <div class="tc-content" style="background:#fdf6e3">
+                    <div class="tc-bar" style="background:#c0622a"></div>
+                    <div class="tc-line" style="background:#3d2b1f"></div>
+                    <div class="tc-line-accent" style="background:#c0622a"></div>
+                </div>
+            </div>
+            <span class="theme-card-label">Warm</span>
+        </button>
+        <button class="theme-card" data-theme="nord" aria-label="Nord theme">
+            <div class="theme-card-preview">
+                <div class="tc-sidebar" style="background:#242933"></div>
+                <div class="tc-content" style="background:#2e3440">
+                    <div class="tc-bar" style="background:#88c0d0"></div>
+                    <div class="tc-line" style="background:#eceff4"></div>
+                    <div class="tc-line-accent" style="background:#88c0d0"></div>
+                </div>
+            </div>
+            <span class="theme-card-label">Nord</span>
+        </button>
+    </div>
+</div>
+
+<div id="main">
+    <main id="content">
+        <?php if ($error): ?>
+            <p class="empty">File not found.</p>
+        <?php elseif ($requestedFile !== null): ?>
+            <article data-ext="<?= htmlspecialchars(strtolower($ext)) ?>">
+                <?= $content ?>
+            </article>
+        <?php else: ?>
+            <div class="home" id="home">
+                <div id="hacker-home" class="hacker-home" style="display:none">
+                    <div class="hacker-title">HACK<br>THE<br>PLANET</div>
+                    <pre id="manifesto-text" class="manifesto-text"></pre>
+                </div>
+                <div id="default-home">
                     <div class="home-logo">Palantir</div>
                     <p class="home-tagline">your documents, organized and readable.</p>
                     <div class="home-hints">
@@ -272,20 +284,25 @@ if ($requestedFile !== null) {
                             <span>reference images as <code>/docs/path/to/image.png</code></span>
                         </div>
                     </div>
-                    <a href="/?file=_claude-guide.md" class="home-guide-link">Using with Claude →</a>
-                    </div><!-- /default-home -->
-                </div>
-            <?php endif; ?>
-        </main>
-        <?php if ($requestedFile !== null && !$error): ?>
+                    <div>
+                        <span><a href="/?file=_user-guide.md" class="home-guide-link">Extended User Guide →</a></span>
+                        <br/>
+                        <span><a href="/?file=_claude-guide.md" class="home-guide-link">Using with Claude →</a></span>
+                    </div>
+                </div><!-- /default-home -->
+            </div>
+        <?php endif; ?>
+    </main>
+    <?php if ($requestedFile !== null && !$error): ?>
         <div id="doc-bar">
             <span id="doc-bar-crumb"></span>
             <?php $nativeTypes = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']; ?>
             <?php $docBarHref = in_array(strtolower($ext), $nativeTypes) ? '/docs/' . htmlspecialchars($requestedFile) : '/raw?file=' . urlencode($requestedFile); ?>
-            <a id="doc-bar-type" href="<?= $docBarHref ?>" target="_blank" rel="noopener"><?= $title ?>.<?= htmlspecialchars(strtolower($ext)) ?></a>
+            <a id="doc-bar-type" href="<?= $docBarHref ?>" target="_blank" rel="noopener"><?= $title ?>
+                .<?= htmlspecialchars(strtolower($ext)) ?></a>
         </div>
-        <?php endif; ?>
-    </div>
-    <script src="/app.js"></script>
+    <?php endif; ?>
+</div>
+<script src="/app.js"></script>
 </body>
 </html>
