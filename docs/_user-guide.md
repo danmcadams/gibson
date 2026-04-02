@@ -94,6 +94,31 @@ A copy button appears on hover for each code block.
 
 ---
 
+## Mermaid Diagrams
+
+Use a `mermaid` code fence to render diagrams inline:
+
+````markdown
+```mermaid
+flowchart TD
+    A[Start] --> B{Decision}
+    B -- Yes --> C[Do it]
+    B -- No --> D[Skip it]
+```
+````
+
+````markdown
+```mermaid
+sequenceDiagram
+    Alice->>Bob: Hello
+    Bob-->>Alice: Hi back
+```
+````
+
+Diagrams are rendered client-side and automatically re-render when you switch themes. Supported diagram types include flowcharts, sequence diagrams, Gantt charts, entity-relationship diagrams, and more — see the [Mermaid docs](https://mermaid.js.org/intro/) for the full list.
+
+---
+
 ## Adding Images
 
 Drop image files anywhere under `docs/` and reference them with a `/docs/` prefix:
@@ -157,11 +182,11 @@ Click the `‹` button at the top of the sidebar to collapse it and give the doc
 ## Managing the Server
 
 ```bash
-cd /home/work/projects/claude_markdown_server
+cd ~/projects/palantir
 
 docker-compose up -d    # start
 docker-compose down     # stop
 docker-compose logs -f  # tail logs
 ```
 
-The server runs at `http://192.168.50.196:8181`.
+The server runs at `http://localhost:8181`.

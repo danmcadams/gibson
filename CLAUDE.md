@@ -7,7 +7,7 @@ A local web server for reviewing planning documents. Running at `http://localhos
 All markdown files go in the `docs/` directory relative to this project:
 
 ```
-/home/work/projects/claude_markdown_server/docs/
+~/projects/palantir/docs/
 ```
 
 Files appear in the sidebar immediately — no server restart needed. The sidebar is nestable: subdirectories become collapsible sections.
@@ -68,10 +68,14 @@ Prefix any file or folder name with `_` to hide it from the sidebar tree. The fi
 
 To keep docs from going stale: **one doc owns each piece of information, everyone else links to it.** Don't copy status or facts across files — just link.
 
+## Mermaid Diagrams
+
+The server renders ` ```mermaid ``` ` fences as diagrams. Use them freely in planning docs for flowcharts, sequence diagrams, ERDs, Gantt charts, etc. Diagrams are theme-aware and re-render automatically when the user switches themes.
+
 ## Managing the Server
 
 ```bash
-cd /home/work/projects/claude_markdown_server
+cd ~/projects/palantir
 
 # Start
 docker-compose up -d
