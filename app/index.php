@@ -131,6 +131,7 @@ if ($requestedFile !== null) {
         $parsedown = new Parsedown();
         $parsedown->setSafeMode(false);
         $content = $parsedown->text(file_get_contents($fullPath));
+        $hasMermaid = str_contains($content, 'class="language-mermaid"');
         $title = htmlspecialchars(basename($fullPath, '.md'));
     }
 }
@@ -303,6 +304,13 @@ if ($requestedFile !== null) {
         </div>
     <?php endif; ?>
 </div>
+<?php if ($hasMermaid ?? false): ?>
+<script type="module">
+    import mermaid from '/vendor/mermaid.esm.min.mjs';
+    window.__mermaid = mermaid;
+    window.dispatchEvent(new Event('mermaid-ready'));
+</script>
+<?php endif; ?>
 <script src="/app.js"></script>
 </body>
 </html>

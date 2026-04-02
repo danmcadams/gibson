@@ -916,3 +916,15 @@ pre.plaintext {
     margin: 0;
     color: var(--body-color);
 }
+
+/* ── Mermaid diagrams ──────────────────────────────── */
+.mermaid-diagram {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    text-align: center;
+}
+
+.mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+}

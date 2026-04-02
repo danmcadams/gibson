@@ -124,6 +124,74 @@
 })();
 
 (function () {
+    var nodes = document.querySelectorAll('article pre code.language-mermaid');
+    if (!nodes.length) return;
+
+    var CONFIGS = {
+        light:  { theme: 'default' },
+        dark:   { theme: 'dark' },
+        hacker: { theme: 'base', themeVariables: {
+            background: '#0a0a0a', primaryColor: '#0d1a0d',
+            primaryTextColor: '#00ff41', primaryBorderColor: '#003d0f',
+            lineColor: '#00cc33', secondaryColor: '#050f05'
+        }},
+        warm: { theme: 'base', themeVariables: {
+            background: '#fdf6e3', primaryColor: '#f5e6d0',
+            primaryTextColor: '#3d2b1f', primaryBorderColor: '#dfc9a8',
+            lineColor: '#c0622a'
+        }},
+        nord: { theme: 'base', themeVariables: {
+            background: '#2e3440', primaryColor: '#3b4252',
+            primaryTextColor: '#eceff4', primaryBorderColor: '#434c5e',
+            lineColor: '#88c0d0'
+        }}
+    };
+
+    function getConfig() {
+        var t = document.documentElement.getAttribute('data-theme') || 'light';
+        return CONFIGS[t] || CONFIGS.light;
+    }
+
+    // Synchronous DOM transform — runs before copy-btn IIFE
+    nodes.forEach(function (code) {
+        var pre = code.parentElement;
+        if (!pre || pre.tagName !== 'PRE') return;
+        var raw = code.textContent;
+        var div = document.createElement('div');
+        div.className = 'mermaid mermaid-diagram';
+        div.setAttribute('data-diagram', raw);
+        div.textContent = raw;
+        pre.parentNode.replaceChild(div, pre);
+    });
+
+    function render(mermaid) {
+        var cfg = getConfig();
+        mermaid.initialize(Object.assign({ startOnLoad: false }, cfg));
+        mermaid.run({ querySelector: '.mermaid-diagram' });
+    }
+
+    function onReady(mermaid) {
+        render(mermaid);
+        // Re-render on theme change
+        new MutationObserver(function () {
+            document.querySelectorAll('.mermaid-diagram').forEach(function (el) {
+                el.removeAttribute('data-processed');
+                el.textContent = el.getAttribute('data-diagram');
+            });
+            render(mermaid);
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+
+    if (window.__mermaid) {
+        onReady(window.__mermaid);
+    } else {
+        window.addEventListener('mermaid-ready', function () {
+            onReady(window.__mermaid);
+        }, { once: true });
+    }
+})();
+
+(function () {
     document.querySelectorAll('article pre').forEach(function (pre) {
         var btn = document.createElement('button');
         btn.className = 'copy-btn';

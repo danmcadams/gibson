@@ -1,6 +1,6 @@
 # claude_markdown_server
 
-A local web server for reviewing planning documents. Running at `http://192.168.50.196:8181`.
+A local web server for reviewing planning documents. Running at `http://localhost:8181`.
 
 ## Dropping Files
 
