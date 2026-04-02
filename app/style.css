@@ -821,6 +821,29 @@ article pre {
     padding: 1rem;
     overflow-x: auto;
     font-size: 0.875rem;
+    position: relative;
+}
+
+article pre:hover .copy-btn { opacity: 1; }
+
+.copy-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    padding: 0.15rem 0.45rem;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.7rem;
+    background: var(--code-border);
+    color: var(--body-color);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+}
+
+.copy-btn:hover {
+    background: var(--sidebar-item-hover-bg);
 }
 
 article code {
