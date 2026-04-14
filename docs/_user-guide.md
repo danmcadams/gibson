@@ -182,7 +182,7 @@ Click the `‹` button at the top of the sidebar to collapse it and give the doc
 ## Managing the Server
 
 ```bash
-cd ~/projects/palantir
+cd ~/projects/gibson
 
 docker-compose up -d    # start
 docker-compose down     # stop

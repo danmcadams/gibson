@@ -1,4 +1,4 @@
-# Palantir TODO
+# Gibson TODO
 
 ## Ideas
 
@@ -13,4 +13,4 @@
 | idea:7 | New file button — create a `.md` file directly from the UI | moderate |
 | idea:8 | Full-text search — search across all doc content (requires server-side index or PHP scan) | involved |
 | idea:9 | Resizable sidebar — drag to adjust sidebar width; use sessionStorage for width and collapsed state (no need to persist across sessions) | easy |
-| idea:10 | Mermaid.js diagrams — render ` ```mermaid ``` ` fences as diagrams; client-side DOM transform + theme-aware config; Mermaid baked into Docker image at build time (no CDN dep). See [plan](/?file=palantir/mermaid-integration.md) | moderate |
+| idea:10 | Mermaid.js diagrams — render ` ```mermaid ``` ` fences as diagrams; client-side DOM transform + theme-aware config; Mermaid baked into Docker image at build time (no CDN dep). See [plan](/?file=gibson/mermaid-integration.md) | moderate |

@@ -7,7 +7,7 @@ A local web server for reviewing planning documents. Running at `http://localhos
 All markdown files go in the `docs/` directory relative to this project:
 
 ```
-~/projects/palantir/docs/
+~/projects/gibson/docs/
 ```
 
 Files appear in the sidebar immediately — no server restart needed. The sidebar is nestable: subdirectories become collapsible sections.
@@ -75,7 +75,7 @@ The server renders ` ```mermaid ``` ` fences as diagrams. Use them freely in pla
 ## Managing the Server
 
 ```bash
-cd ~/projects/palantir
+cd ~/projects/gibson
 
 # Start
 docker-compose up -d

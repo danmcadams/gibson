@@ -88,7 +88,7 @@ if ($uri === '/export') {
     }
 
     $folderName = basename($fullPath);
-    $tmpFile    = tempnam(sys_get_temp_dir(), 'palantir_export_');
+    $tmpFile    = tempnam(sys_get_temp_dir(), 'gibson_export_');
     $zip        = new ZipArchive();
 
     if ($zip->open($tmpFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
