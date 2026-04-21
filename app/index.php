@@ -177,7 +177,7 @@ if ($requestedFile !== null) {
     </nav>
     <div class="sidebar-footer">
         <button id="settings-btn" class="settings-btn" aria-label="Settings" title="Settings" aria-expanded="false">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -251,49 +251,54 @@ if ($requestedFile !== null) {
 </div>
 
 <div id="main">
-    <main id="content">
-        <?php if ($error): ?>
-            <p class="empty">File not found.</p>
-        <?php elseif ($requestedFile !== null): ?>
-            <article data-ext="<?= htmlspecialchars(strtolower($ext)) ?>">
-                <?= $content ?>
-            </article>
-        <?php else: ?>
-            <div class="home" id="home">
-                <div id="hacker-home" class="hacker-home" style="display:none">
-                    <div class="hacker-title">HACK<br>THE<br>PLANET</div>
-                    <pre id="manifesto-text" class="manifesto-text"></pre>
+    <div id="content-wrapper">
+        <main id="content">
+            <?php if ($error): ?>
+                <p class="empty">File not found.</p>
+            <?php elseif ($requestedFile !== null): ?>
+                <article data-ext="<?= htmlspecialchars(strtolower($ext)) ?>">
+                    <?= $content ?>
+                </article>
+            <?php else: ?>
+                <div class="home" id="home">
+                    <div id="hacker-home" class="hacker-home" style="display:none">
+                        <div class="hacker-title">HACK<br>THE<br>PLANET</div>
+                        <pre id="manifesto-text" class="manifesto-text"></pre>
+                    </div>
+                    <div id="default-home">
+                        <div class="home-logo">Gibson</div>
+                        <p class="home-tagline">your documents, organized and readable.</p>
+                        <div class="home-hints">
+                            <div class="home-hint">
+                                <span class="hint-key">←</span>
+                                <span>pick a file from the sidebar</span>
+                            </div>
+                            <div class="home-hint">
+                                <span class="hint-key">drop</span>
+                                <span>any <code>.md</code> or <code>.txt</code> into <code>docs/</code> to add it</span>
+                            </div>
+                            <div class="home-hint">
+                                <span class="hint-key">nest</span>
+                                <span>subdirectories become collapsible sections</span>
+                            </div>
+                            <div class="home-hint">
+                                <span class="hint-key">img</span>
+                                <span>reference images as <code>/docs/path/to/image.png</code></span>
+                            </div>
+                        </div>
+                        <div>
+                            <span><a href="/?file=_user-guide.md" class="home-guide-link">Extended User Guide →</a></span>
+                            <br/>
+                            <span><a href="/?file=_claude-guide.md" class="home-guide-link">Using with Claude →</a></span>
+                        </div>
+                    </div><!-- /default-home -->
                 </div>
-                <div id="default-home">
-                    <div class="home-logo">Gibson</div>
-                    <p class="home-tagline">your documents, organized and readable.</p>
-                    <div class="home-hints">
-                        <div class="home-hint">
-                            <span class="hint-key">←</span>
-                            <span>pick a file from the sidebar</span>
-                        </div>
-                        <div class="home-hint">
-                            <span class="hint-key">drop</span>
-                            <span>any <code>.md</code> or <code>.txt</code> into <code>docs/</code> to add it</span>
-                        </div>
-                        <div class="home-hint">
-                            <span class="hint-key">nest</span>
-                            <span>subdirectories become collapsible sections</span>
-                        </div>
-                        <div class="home-hint">
-                            <span class="hint-key">img</span>
-                            <span>reference images as <code>/docs/path/to/image.png</code></span>
-                        </div>
-                    </div>
-                    <div>
-                        <span><a href="/?file=_user-guide.md" class="home-guide-link">Extended User Guide →</a></span>
-                        <br/>
-                        <span><a href="/?file=_claude-guide.md" class="home-guide-link">Using with Claude →</a></span>
-                    </div>
-                </div><!-- /default-home -->
-            </div>
-        <?php endif; ?>
-    </main>
+            <?php endif; ?>
+        </main>
+        <nav id="toc-panel">
+            <div class="toc-inner"></div>
+        </nav>
+    </div>
     <?php if ($requestedFile !== null && !$error): ?>
         <div id="doc-bar">
             <span id="doc-bar-crumb"></span>

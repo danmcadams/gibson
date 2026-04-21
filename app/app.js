@@ -244,3 +244,48 @@
             : '';
     });
 })();
+
+(function () {
+    var article  = document.querySelector('article');
+    var tocPanel = document.getElementById('toc-panel');
+    if (!article || !tocPanel) return;
+
+    var headings = Array.from(article.querySelectorAll('h2, h3'));
+    if (headings.length < 2) return;
+
+    var content  = document.getElementById('content');
+    var tocInner = tocPanel.querySelector('.toc-inner');
+
+    var label = document.createElement('span');
+    label.className = 'toc-label';
+    label.textContent = 'On this page';
+    tocInner.appendChild(label);
+
+    var links = headings.map(function (h) {
+        var a = document.createElement('a');
+        a.className = 'toc-link toc-' + h.tagName.toLowerCase();
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.trim();
+        a.title = h.textContent.trim();
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            var top = h.getBoundingClientRect().top + content.scrollTop - content.getBoundingClientRect().top - 24;
+            content.scrollTo({ top: top, behavior: 'smooth' });
+        });
+        tocInner.appendChild(a);
+        return { heading: h, link: a };
+    });
+
+    tocPanel.classList.add('is-visible');
+
+    content.addEventListener('scroll', function () {
+        var contentTop = content.getBoundingClientRect().top;
+        var current = null;
+        headings.forEach(function (h) {
+            if (h.getBoundingClientRect().top - contentTop <= 60) current = h;
+        });
+        links.forEach(function (item) {
+            item.link.classList.toggle('is-active', item.heading === current);
+        });
+    });
+})();
