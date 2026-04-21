@@ -286,37 +286,38 @@ body {
 
 /* ── Settings ────────────────────────────────────────── */
 
-.sidebar-footer {
-    padding: 0.6rem 0.75rem;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: flex-start;
-    margin-top: auto;
+.settings-fab {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 200;
 }
 
 .settings-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    color: var(--sidebar-toggle-color);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--settings-border);
+    background: var(--settings-bg);
+    color: var(--settings-gear-color);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, color 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
 .settings-btn:hover {
-    background: var(--sidebar-toggle-hover-bg);
-    color: var(--sidebar-toggle-hover-color);
+    background: var(--settings-gear-hover-bg);
+    color: var(--settings-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .settings-panel {
     position: fixed;
     bottom: 3.75rem;
-    left: 1rem;
+    right: 1rem;
     z-index: 199;
     width: 300px;
     background: var(--settings-bg);
@@ -325,7 +326,7 @@ body {
     padding: 0.75rem;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
     color: var(--settings-color);
-    transform-origin: bottom left;
+    transform-origin: bottom right;
     transform: scale(0.95) translateY(4px);
     opacity: 0;
     pointer-events: none;
