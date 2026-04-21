@@ -46,6 +46,17 @@ docker-compose down
 docker-compose logs -f
 ```
 
+## Features
+
+- **Table of contents** — documents with 2+ headings get an auto-generated TOC panel on the right, with active-heading tracking as you scroll
+- **Mermaid diagrams** — fenced code blocks tagged `mermaid` render as diagrams; re-renders automatically on theme change
+- **Themes** — four built-in themes (Light, Dark, Warm, Nord), selectable via the ⚙ gear in the bottom-left corner
+- **Multiple file types** — `.md`, `.txt`, and `.pdf` files all appear in the sidebar
+- **Images** — drop images anywhere under `docs/` and reference them as `/docs/path/to/image.png`
+- **Cross-doc links** — link between documents with `[label](/?file=path/to/doc.md)`
+- **Hidden files** — prefix any file or folder name with `_` to hide it from the sidebar (still accessible by direct URL)
+- **Folder export** — hover a directory in the sidebar to reveal a download button that zips the folder
+
 ## Notes
 
 - The server is bound to `0.0.0.0:8181` — accessible from other machines on the network, not just localhost
